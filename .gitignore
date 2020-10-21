@@ -32,3 +32,6 @@ squashfs-root/
 
 # Linux appdata
 /assets/freedesktop/org.zealdocs.Zeal.appdata.xml
+
+deps/
+*.bat
