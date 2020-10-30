@@ -109,6 +109,8 @@ public:
 
     // Other
     QString docsetPath;
+    int dashMirrorIndex;
+    static QList<QPair<QString, QString>> const dashMirrorList;
 
     // State
     QByteArray windowGeometry;
@@ -117,6 +119,8 @@ public:
 
     explicit Settings(QObject *parent = nullptr);
     ~Settings() override;
+
+    QString dashMirrorUrl() const;
 
 public slots:
     void load();
@@ -129,6 +133,8 @@ private:
     void migrate(QSettings *settings) const;
 
     static QSettings *qsettings(QObject *parent = nullptr);
+
+    static QList<QPair<QString, QString>> initDashServerMirrors();
 };
 
 } // namespace Core

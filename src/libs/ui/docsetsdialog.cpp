@@ -57,8 +57,8 @@ extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 
 namespace {
 constexpr char ApiServerUrl[] = "https://api.zealdocs.org/v1";
-constexpr char RedirectServerUrl[] = "https://go.zealdocs.org/d/%1/%2/latest";
-constexpr char UserContribServerUrl[] = "http://kapeli.com/feeds/zzz/user_contributed/build";
+// constexpr char RedirectServerUrl[] = "https://go.zealdocs.org/d/%1/%2/latest";
+// constexpr char UserContribServerUrl[] = "http://kapeli.com/feeds/zzz/user_contributed/build";
 // TODO: Each source plugin should have its own cache
 constexpr char DocsetListCacheFileName[] = "com.kapeli.json";
 constexpr char UserContribDocsetListCacheFileName[] = "user_contributed.json";
@@ -954,7 +954,8 @@ void DocsetsDialog::downloadUserContribDocsetList()
     ui->userContribDocsetList->clear();
     m_userContribDocsets.clear();
 
-    QNetworkReply *reply = download(QUrl(UserContribServerUrl + QLatin1String("/index.json")));
+    QString urlString = QString("%1/feeds/zzz/user_contributed/build/index.json").arg(m_application->settings()->dashMirrorUrl());
+    QNetworkReply *reply = download(QUrl(urlString));
     reply->setProperty(DownloadTypeProperty, DownloadUserContribDocsetList);
 }
 
@@ -999,20 +1000,27 @@ void DocsetsDialog::processUserContribDocsetList(const QJsonObject &index)
 void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
 {
     const QString name = index.data(Registry::ItemDataRole::DocsetNameRole).toString();
+    bool isUserContrib = m_userContribDocsets.count(name) > 0;
 
-    if (m_userContribDocsets.count(name)) {
-        downloadDashUserContribDocset(index);
-        return;
-    }
-
-    if (m_availableDocsets.count(name) == 0 && !m_userFeeds.contains(name))
+    if (m_availableDocsets.count(name) == 0 && !isUserContrib && !m_userFeeds.contains(name))
         return;
 
+    QString dashMirror = m_application->settings()->dashMirrorUrl();
     QUrl url;
     if (!m_userFeeds.contains(name)) {
-        // No feed present means that this is a Kapeli docset
-        // QString urlString = QString(RedirectServerUrl).arg("com.kapeli", name);
-        QString urlString = QString("https://kapeli.com/feeds/%1.tgz").arg(name);
+        QString urlString = QString("%1/feeds/%2.tgz").arg(dashMirror, name);
+
+        if (isUserContrib) {
+            Registry::DocsetMetadata metadata = m_userContribDocsets[name];
+            QString archiveName = metadata.archive();
+            if (archiveName.isEmpty()) {
+                archiveName = name + ".tgz";
+            }
+            urlString = QString("%1/feeds/zzz/user_contributed/build/%2/%3").arg(dashMirror, QString(name).replace(" ", "_"), archiveName);
+        }
+
+        QMessageBox(QMessageBox::Icon::Information, "Debug", urlString).exec();
+
         url = QUrl(urlString);
     } else {
         url = m_userFeeds[name].url();
@@ -1021,33 +1029,13 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
     QNetworkReply *reply = download(url);
     reply->setProperty(DocsetNameProperty, name);
     reply->setProperty(DownloadTypeProperty, DownloadDocset);
-    reply->setProperty(ListItemIndexProperty,
-                       ui->availableDocsetList->row(findDocsetListItem(name)));
-}
-
-void DocsetsDialog::downloadDashUserContribDocset(const QModelIndex &index)
-{
-    const QString name = index.data(Registry::ItemDataRole::DocsetNameRole).toString();
-    Registry::DocsetMetadata metadata = m_userContribDocsets[name];
-
-    if (m_userContribDocsets.count(name) == 0)
-        return;
-
-    QUrl url;
-    // No feed present means that this is a Kapeli docset
-    // QString urlString = QString(RedirectServerUrl).arg("com.kapeli", name);
-    QString archiveName = metadata.archive();
-    if (archiveName.isEmpty()) {
-        archiveName = name + ".tgz";
+    if (isUserContrib) {
+        reply->setProperty(ListItemIndexProperty,
+                        ui->userContribDocsetList->row(findDocsetListItem(name)));
+    } else {
+        reply->setProperty(ListItemIndexProperty,
+                        ui->availableDocsetList->row(findDocsetListItem(name)));
     }
-    QString urlString =QString("https://kapeli.com/feeds/zzz/user_contributed/build/%1/%2").arg(QString(name).replace(" ", "_"), archiveName);
-    url = QUrl(urlString);
-
-    QNetworkReply *reply = download(url);
-    reply->setProperty(DocsetNameProperty, name);
-    reply->setProperty(DownloadTypeProperty, DownloadDocset);
-    reply->setProperty(ListItemIndexProperty,
-                       ui->userContribDocsetList->row(findDocsetListItem(name)));
 }
 
 void DocsetsDialog::removeDocset(const QString &name)

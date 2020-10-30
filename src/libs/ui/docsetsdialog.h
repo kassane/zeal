@@ -127,7 +127,6 @@ private:
     void processUserContribDocsetList(const QJsonObject &list);
 
     void downloadDashDocset(const QModelIndex &index);
-    void downloadDashUserContribDocset(const QModelIndex &index);
     void removeDocset(const QString &name);
 
     void updateStatus();
