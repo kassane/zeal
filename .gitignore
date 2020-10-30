@@ -40,3 +40,4 @@ squashfs-root/
 
 deps/
 *.bat
+dist/
