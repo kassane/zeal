@@ -40,6 +40,10 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     m_name = jsonObject[QStringLiteral("name")].toString();
     m_title = jsonObject[QStringLiteral("title")].toString();
 
+    if (m_title.isEmpty()) {
+        m_title = m_name;
+    }
+
     m_rawIcon = QByteArray::fromBase64(jsonObject[QStringLiteral("icon")].toString().toLocal8Bit());
     m_icon.addPixmap(QPixmap::fromImage(QImage::fromData(m_rawIcon)));
 
@@ -59,6 +63,10 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
         m_versions << vv.toString();
     }
 
+    if (jsonObject.contains("version")) {
+        m_versions << jsonObject["version"].toString();
+    }
+
     m_revision = jsonObject[QStringLiteral("revision")].toString();
 
     m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
@@ -68,6 +76,13 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     }
 
     m_extra = jsonObject[QStringLiteral("extra")].toObject();
+
+    m_archive = jsonObject[QStringLiteral("archive")].toString();
+
+    for (const QJsonValueRef vv : jsonObject["specific_versions"].toArray()) {
+        QJsonObject v = vv.toObject();
+        m_specificVersions.insert(v["version"].toString(), v["archive"].toString());
+    }
 }
 
 /*!
@@ -177,6 +192,16 @@ QUrl DocsetMetadata::url() const
 QList<QUrl> DocsetMetadata::urls() const
 {
     return m_urls;
+}
+
+QString DocsetMetadata::archive() const
+{
+    return m_archive;
+}
+
+QMap<QString, QString> DocsetMetadata::specificVersions() const
+{
+    return m_specificVersions;
 }
 
 DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArray &data)

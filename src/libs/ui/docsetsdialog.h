@@ -59,14 +59,19 @@ public:
     explicit DocsetsDialog(Core::Application *app, QWidget *parent = nullptr);
     ~DocsetsDialog() override;
 
+public slots:
+    void initialize();
+
 private slots:
     void addDashFeed();
     void updateSelectedDocsets();
     void updateAllDocsets();
     void removeSelectedDocsets();
     void updateDocsetFilter(const QString &filterString);
+    void updateUserContribDocsetFilter(const QString &filterString);
 
     void downloadSelectedDocsets();
+    void downloadSelectedUserContribDocsets();
 
     void downloadCompleted();
     void downloadProgress(qint64 received, qint64 total);
@@ -76,12 +81,14 @@ private slots:
     void extractionProgress(const QString &filePath, qint64 extracted, qint64 total);
 
     void loadDocsetList();
+    void loadUserContribDocsetList();
 
 private:
     enum DownloadType {
         DownloadDashFeed,
         DownloadDocset,
-        DownloadDocsetList
+        DownloadDocsetList,
+        DownloadUserContribDocsetList
     };
 
     Ui::DocsetsDialog *ui = nullptr;
@@ -94,12 +101,14 @@ private:
 
     // TODO: Create a special model
     Util::CaseInsensitiveMap<Registry::DocsetMetadata> m_availableDocsets;
+    Util::CaseInsensitiveMap<Registry::DocsetMetadata> m_userContribDocsets;
     QMap<QString, Registry::DocsetMetadata> m_userFeeds;
 
     QHash<QString, QTemporaryFile *> m_tmpFiles;
 
     void setupInstalledDocsetsTab();
     void setupAvailableDocsetsTab();
+    void setupUserContribDocsetsTab();
 
     void enableControls();
     void disableControls();
@@ -114,7 +123,11 @@ private:
     void downloadDocsetList();
     void processDocsetList(const QJsonArray &list);
 
+    void downloadUserContribDocsetList();
+    void processUserContribDocsetList(const QJsonObject &list);
+
     void downloadDashDocset(const QModelIndex &index);
+    void downloadDashUserContribDocset(const QModelIndex &index);
     void removeDocset(const QString &name);
 
     void updateStatus();

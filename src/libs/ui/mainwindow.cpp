@@ -113,6 +113,10 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
             m_globalShortcut->setEnabled(false);
         }
 
+        if (m_docsetsDialog != nullptr) {
+            m_docsetsDialog->close();
+        }
+
         QScopedPointer<SettingsDialog> dialog(new SettingsDialog(this));
         dialog->exec();
 
@@ -345,6 +349,7 @@ void MainWindow::showDocsetsDialog()
     if (m_docsetsDialog == nullptr) {
         m_docsetsDialog = new DocsetsDialog(m_application, this);
     }
+    m_docsetsDialog->initialize();
     m_docsetsDialog->show();
     m_docsetsDialog->raise();
     m_docsetsDialog->activateWindow();

@@ -2,9 +2,6 @@
 <ui version="4.0">
  <class>Zeal::WidgetUi::DocsetsDialog</class>
  <widget class="QDialog" name="Zeal::WidgetUi::DocsetsDialog">
-  <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -180,6 +177,100 @@
        </item>
        <item>
         <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>&lt;i&gt;Docsets are provided by &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.&lt;/i&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="userContribDocsetsTab">
+      <attribute name="title">
+       <string>User Contribution</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLineEdit" name="userContribFilterInput">
+         <property name="placeholderText">
+          <string>Filter docsets</string>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="userContribDocsetList">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Last updated:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="userContribLastUpdatedLabel">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="userContribRefreshButton">
+           <property name="text">
+            <string>Refresh</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="userContribDownloadButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Download</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_5">
          <property name="text">
           <string>&lt;i&gt;Docsets are provided by &lt;a href=&quot;https://kapeli.com/dash&quot;&gt;Dash&lt;/a&gt;.&lt;/i&gt;</string>
          </property>
