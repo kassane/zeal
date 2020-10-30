@@ -1019,8 +1019,6 @@ void DocsetsDialog::downloadDashDocset(const QModelIndex &index)
             urlString = QString("%1/feeds/zzz/user_contributed/build/%2/%3").arg(dashMirror, QString(name).replace(" ", "_"), archiveName);
         }
 
-        QMessageBox(QMessageBox::Icon::Information, "Debug", urlString).exec();
-
         url = QUrl(urlString);
     } else {
         url = m_userFeeds[name].url();
