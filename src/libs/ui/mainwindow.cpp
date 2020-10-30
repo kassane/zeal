@@ -26,7 +26,6 @@
 
 #include "aboutdialog.h"
 #include "browsertab.h"
-#include "docsetsdialog.h"
 #include "searchsidebar.h"
 #include "settingsdialog.h"
 #include "sidebarviewprovider.h"
@@ -140,10 +139,11 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->resetZoom(); });
 
     // Tools Menu
-    connect(ui->actionDocsets, &QAction::triggered, this, [this]() {
-        QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
-        dialog->exec();
-    });
+    // connect(ui->actionDocsets, &QAction::triggered, this, [this]() {
+    //     QScopedPointer<DocsetsDialog> dialog(new DocsetsDialog(m_application, this));
+    //     dialog->exec();
+    // });
+    connect(ui->actionDocsets, &QAction::triggered, this, &MainWindow::showDocsetsDialog);
 
     // Help Menu
     connect(ui->actionSubmitFeedback, &QAction::triggered, []() {
@@ -338,6 +338,16 @@ void MainWindow::addTab(BrowserTab *tab, int index)
     m_tabBar->insertTab(index, tr("Loading..."));
     m_tabBar->setCurrentIndex(index);
     m_tabBar->setTabData(index, QVariant::fromValue(tab));
+}
+
+void MainWindow::showDocsetsDialog()
+{
+    if (m_docsetsDialog == nullptr) {
+        m_docsetsDialog = new DocsetsDialog(m_application, this);
+    }
+    m_docsetsDialog->show();
+    m_docsetsDialog->raise();
+    m_docsetsDialog->activateWindow();
 }
 
 BrowserTab *MainWindow::currentTab() const

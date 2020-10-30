@@ -24,6 +24,8 @@
 #ifndef ZEAL_WIDGETUI_MAINWINDOW_H
 #define ZEAL_WIDGETUI_MAINWINDOW_H
 
+#include "docsetsdialog.h"
+
 #include <QMainWindow>
 
 class QxtGlobalShortcut;
@@ -83,6 +85,7 @@ private slots:
     void closeTab(int index = -1);
     void moveTab(int from, int to);
     void duplicateTab(int index);
+    void showDocsetsDialog();
 
 private:
     void setupTabBar();
@@ -113,6 +116,7 @@ private:
     SidebarViewProvider *m_sbViewProvider = nullptr;
 
     QSystemTrayIcon *m_trayIcon = nullptr;
+    DocsetsDialog* m_docsetsDialog = nullptr;
 };
 
 } // namespace WidgetUi
