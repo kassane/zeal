@@ -29,109 +29,117 @@
 
 class QSettings;
 
-namespace Zeal {
-namespace Core {
-
-class Settings final : public QObject
+namespace Zeal
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(Settings)
-public:
-    /* This public members are here just for simplification and should go away
+    namespace Core
+    {
+
+        class Settings final : public QObject
+        {
+            Q_OBJECT
+            Q_DISABLE_COPY(Settings)
+        public:
+            /* This public members are here just for simplification and should go away
      * once a more advanced settings management come in place.
      */
 
-    // Startup
-    bool startMinimized;
-    bool checkForUpdate;
-    // TODO: bool restoreLastState;
+            // Startup
+            bool startMinimized;
+            bool checkForUpdate;
+            // TODO: bool restoreLastState;
 
-    // System Tray
-    bool showSystrayIcon;
-    bool minimizeToSystray;
-    bool hideOnClose;
+            // System Tray
+            bool showSystrayIcon;
+            bool minimizeToSystray;
+            bool hideOnClose;
 
-    // Global Shortcuts
-    QKeySequence showShortcut;
-    // TODO: QKeySequence searchSelectedTextShortcut;
+            // Global Shortcuts
+            QKeySequence showShortcut;
+            // TODO: QKeySequence searchSelectedTextShortcut;
 
-    // Tabs Behavior
-    bool openNewTabAfterActive;
+            // Tabs Behavior
+            bool openNewTabAfterActive;
 
-    // Search
-    bool fuzzySearchEnabled;
+            // Search
+            bool fuzzySearchEnabled;
 
-    // Content
-    QString defaultFontFamily;
-    QString serifFontFamily;
-    QString sansSerifFontFamily;
-    QString fixedFontFamily;
+            // Content
+            QString defaultFontFamily;
+            QString serifFontFamily;
+            QString sansSerifFontFamily;
+            QString fixedFontFamily;
 
-    int defaultFontSize;
-    int defaultFixedFontSize;
-    int minimumFontSize;
+            int defaultFontSize;
+            int defaultFixedFontSize;
+            int minimumFontSize;
 
-    enum class ExternalLinkPolicy : unsigned int {
-        Ask = 0,
-        Open,
-        OpenInSystemBrowser
-    };
-    Q_ENUM(ExternalLinkPolicy)
-    ExternalLinkPolicy externalLinkPolicy = ExternalLinkPolicy::Ask;
+            enum class ExternalLinkPolicy : unsigned int
+            {
+                Ask = 0,
+                Open,
+                OpenInSystemBrowser
+            };
+            Q_ENUM(ExternalLinkPolicy)
+            ExternalLinkPolicy externalLinkPolicy = ExternalLinkPolicy::Ask;
 
-    bool darkModeEnabled;
-    bool highlightOnNavigateEnabled;
-    QString customCssFile;
-    bool isSmoothScrollingEnabled;
+            bool darkModeEnabled;
+            bool highlightOnNavigateEnabled;
+            QString customCssFile;
+            bool isSmoothScrollingEnabled;
 
-    // Network
-    enum ProxyType : unsigned int {
-        None = 0,
-        System = 1,
-        Http = 3,
-        Socks5 = 4
-    };
-    Q_ENUM(ProxyType)
+            // Network
+            enum ProxyType : unsigned int
+            {
+                None = 0,
+                System = 1,
+                Http = 3,
+                Socks5 = 4
+            };
+            Q_ENUM(ProxyType)
 
-    // Internal
-    // --------
-    // InstallId is a UUID used to indentify a Zeal installation. Created on first start or after
-    // a settings wipe. It is not attached to user hardware or software, and is sent exclusevely
-    // to *.zealdocs.org hosts.
-    QString installId;
+            // Internal
+            // --------
+            // InstallId is a UUID used to indentify a Zeal installation. Created on first start or after
+            // a settings wipe. It is not attached to user hardware or software, and is sent exclusevely
+            // to *.zealdocs.org hosts.
+            QString installId;
 
-    ProxyType proxyType = ProxyType::System;
-    QString proxyHost;
-    quint16 proxyPort;
-    bool proxyAuthenticate;
-    QString proxyUserName;
-    QString proxyPassword;
+            ProxyType proxyType = ProxyType::System;
+            QString proxyHost;
+            quint16 proxyPort;
+            bool proxyAuthenticate;
+            QString proxyUserName;
+            QString proxyPassword;
 
-    // Other
-    QString docsetPath;
+            // Other
+            QString docsetPath;
+            int dashMirrorIndex;
+            static QList<QPair<QString, QString>> const dashMirrorList;
 
-    // State
-    QByteArray windowGeometry;
-    QByteArray verticalSplitterGeometry;
-    QByteArray tocSplitterState;
+            // State
+            QByteArray windowGeometry;
+            QByteArray verticalSplitterGeometry;
+            QByteArray tocSplitterState;
 
-    explicit Settings(QObject *parent = nullptr);
-    ~Settings() override;
+            explicit Settings(QObject *parent = nullptr);
+            ~Settings() override;
+            QString dashMirrorUrl() const;
 
-public slots:
-    void load();
-    void save();
+        public slots:
+            void load();
+            void save();
 
-signals:
-    void updated();
+        signals:
+            void updated();
 
-private:
-    void migrate(QSettings *settings) const;
+        private:
+            void migrate(QSettings *settings) const;
 
-    static QSettings *qsettings(QObject *parent = nullptr);
-};
+            static QSettings *qsettings(QObject *parent = nullptr);
+            static QList<QPair<QString, QString>> initDashServerMirrors();
+        };
 
-} // namespace Core
+    } // namespace Core
 } // namespace Zeal
 
 QDataStream &operator<<(QDataStream &out, Zeal::Core::Settings::ExternalLinkPolicy policy);

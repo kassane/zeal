@@ -29,49 +29,55 @@
 #include <QStringList>
 #include <QUrl>
 
-namespace Zeal {
-namespace Registry {
-
-class DocsetMetadata
+namespace Zeal
 {
-public:
-    explicit DocsetMetadata() = default;
-    explicit DocsetMetadata(const QJsonObject &jsonObject);
+    namespace Registry
+    {
 
-    void save(const QString &path, const QString &version);
+        class DocsetMetadata
+        {
+        public:
+            explicit DocsetMetadata() = default;
+            explicit DocsetMetadata(const QJsonObject &jsonObject);
 
-    QString name() const;
-    QString title() const;
-    QStringList aliases() const;
-    QStringList versions() const;
-    QString latestVersion() const;
-    QString revision() const;
-    QIcon icon() const;
+            void save(const QString &path, const QString &version);
 
-    QUrl feedUrl() const;
-    QUrl url() const;
-    QList<QUrl> urls() const;
+            QString name() const;
+            QString title() const;
+            QStringList aliases() const;
+            QStringList versions() const;
+            QString latestVersion() const;
+            QString revision() const;
+            QIcon icon() const;
 
-    static DocsetMetadata fromDashFeed(const QUrl &feedUrl, const QByteArray &data);
+            QUrl feedUrl() const;
+            QUrl url() const;
+            QString archive() const;
+            QList<QUrl> urls() const;
+            QMap<QString, QString> specificVersions() const;
 
-private:
-    QString m_name;
-    QString m_title;
-    QStringList m_aliases;
-    QStringList m_versions;
-    QString m_revision;
+            static DocsetMetadata fromDashFeed(const QUrl &feedUrl, const QByteArray &data);
 
-    QByteArray m_rawIcon;
-    QByteArray m_rawIcon2x;
-    QIcon m_icon;
+        private:
+            QString m_name;
+            QString m_title;
+            QStringList m_aliases;
+            QStringList m_versions;
+            QString m_revision;
 
-    QJsonObject m_extra;
+            QByteArray m_rawIcon;
+            QByteArray m_rawIcon2x;
+            QIcon m_icon;
 
-    QUrl m_feedUrl;
-    QList<QUrl> m_urls;
-};
+            QJsonObject m_extra;
 
-} // namespace Registry
+            QUrl m_feedUrl;
+            QList<QUrl> m_urls;
+            QString m_archive;
+            QMap<QString, QString> m_specificVersions;
+        };
+
+    } // namespace Registry
 } // namespace Zeal
 
 #endif // ZEAL_REGISTRY_DOCSETMETADATA_H

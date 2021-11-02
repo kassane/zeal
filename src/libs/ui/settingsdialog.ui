@@ -149,18 +149,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_8">
-         <property name="title">
-          <string>Server</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QComboBox" name="dashServerMirrorsCombo"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

@@ -33,19 +33,27 @@
 #include <QUuid>
 #include <QWebEngineSettings>
 
-namespace {
-// Configuration file groups
-constexpr char GroupContent[] = "content";
-constexpr char GroupDocsets[] = "docsets";
-constexpr char GroupGlobalShortcuts[] = "global_shortcuts";
-constexpr char GroupSearch[] = "search";
-constexpr char GroupTabs[] = "tabs";
-constexpr char GroupInternal[] = "internal";
-constexpr char GroupState[] = "state";
-constexpr char GroupProxy[] = "proxy";
+namespace
+{
+    // Configuration file groups
+    constexpr char GroupContent[] = "content";
+    constexpr char GroupDocsets[] = "docsets";
+    constexpr char GroupGlobalShortcuts[] = "global_shortcuts";
+    constexpr char GroupSearch[] = "search";
+    constexpr char GroupTabs[] = "tabs";
+    constexpr char GroupInternal[] = "internal";
+    constexpr char GroupState[] = "state";
+    constexpr char GroupProxy[] = "proxy";
 } // namespace
 
 using namespace Zeal::Core;
+
+QList<QPair<QString, QString>> const Settings::dashMirrorList = Settings::initDashServerMirrors();
+
+QString Settings::dashMirrorUrl() const
+{
+    return dashMirrorList.at(dashMirrorIndex).second;
+}
 
 Settings::Settings(QObject *parent)
     : QObject(parent)
@@ -68,11 +76,12 @@ void Settings::load()
     // TODO: Put everything in groups
     startMinimized = settings->value(QStringLiteral("start_minimized"), false).toBool();
     checkForUpdate = settings->value(QStringLiteral("check_for_update"), true).toBool();
-
+    dashMirrorIndex = settings->value(QStringLiteral("dash_server_mirror"), 0).toInt();
     showSystrayIcon = settings->value(QStringLiteral("show_systray_icon"), true).toBool();
     minimizeToSystray = settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
     hideOnClose = settings->value(QStringLiteral("hide_on_close"), false).toBool();
 
+    settings->setValue(QStringLiteral("dash_server_mirror"), dashMirrorIndex);
     settings->beginGroup(GroupGlobalShortcuts);
     showShortcut = settings->value(QStringLiteral("show")).value<QKeySequence>();
     settings->endGroup();
@@ -89,23 +98,27 @@ void Settings::load()
     // Fonts
     QWebEngineSettings *webSettings = QWebEngineSettings::defaultSettings();
     serifFontFamily = settings->value(QStringLiteral("serif_font_family"),
-                                      webSettings->fontFamily(QWebEngineSettings::SerifFont)).toString();
+                                      webSettings->fontFamily(QWebEngineSettings::SerifFont))
+                          .toString();
     sansSerifFontFamily = settings->value(QStringLiteral("sans_serif_font_family"),
-                                          webSettings->fontFamily(QWebEngineSettings::SansSerifFont)).toString();
+                                          webSettings->fontFamily(QWebEngineSettings::SansSerifFont))
+                              .toString();
     fixedFontFamily = settings->value(QStringLiteral("fixed_font_family"),
-                                      webSettings->fontFamily(QWebEngineSettings::FixedFont)).toString();
+                                      webSettings->fontFamily(QWebEngineSettings::FixedFont))
+                          .toString();
 
     static const QMap<QString, QWebEngineSettings::FontFamily> fontFamilies = {
         {QStringLiteral("sans-serif"), QWebEngineSettings::SansSerifFont},
         {QStringLiteral("serif"), QWebEngineSettings::SerifFont},
-        {QStringLiteral("monospace"), QWebEngineSettings::FixedFont}
-    };
+        {QStringLiteral("monospace"), QWebEngineSettings::FixedFont}};
 
     defaultFontFamily = settings->value(QStringLiteral("default_font_family"),
-                                        QStringLiteral("serif")).toString();
+                                        QStringLiteral("serif"))
+                            .toString();
 
     // Fallback to the serif font family.
-    if (!fontFamilies.contains(defaultFontFamily)) {
+    if (!fontFamilies.contains(defaultFontFamily))
+    {
         defaultFontFamily = QStringLiteral("serif");
     }
 
@@ -117,11 +130,14 @@ void Settings::load()
     webSettings->setFontFamily(QWebEngineSettings::StandardFont, defaultFontFamilyResolved);
 
     defaultFontSize = settings->value(QStringLiteral("default_font_size"),
-                                      webSettings->fontSize(QWebEngineSettings::DefaultFontSize)).toInt();
+                                      webSettings->fontSize(QWebEngineSettings::DefaultFontSize))
+                          .toInt();
     defaultFixedFontSize = settings->value(QStringLiteral("default_fixed_font_size"),
-                                           webSettings->fontSize(QWebEngineSettings::DefaultFixedFontSize)).toInt();
+                                           webSettings->fontSize(QWebEngineSettings::DefaultFixedFontSize))
+                               .toInt();
     minimumFontSize = settings->value(QStringLiteral("minimum_font_size"),
-                                      webSettings->fontSize(QWebEngineSettings::MinimumFontSize)).toInt();
+                                      webSettings->fontSize(QWebEngineSettings::MinimumFontSize))
+                          .toInt();
 
     webSettings->setFontSize(QWebEngineSettings::DefaultFontSize, defaultFontSize);
     webSettings->setFontSize(QWebEngineSettings::DefaultFixedFontSize, defaultFixedFontSize);
@@ -131,13 +147,15 @@ void Settings::load()
     highlightOnNavigateEnabled = settings->value(QStringLiteral("highlight_on_navigate"), true).toBool();
     customCssFile = settings->value(QStringLiteral("custom_css_file")).toString();
     externalLinkPolicy = settings->value(QStringLiteral("external_link_policy"),
-                                         QVariant::fromValue(ExternalLinkPolicy::Ask)).value<ExternalLinkPolicy>();
+                                         QVariant::fromValue(ExternalLinkPolicy::Ask))
+                             .value<ExternalLinkPolicy>();
     isSmoothScrollingEnabled = settings->value(QStringLiteral("smooth_scrolling"), false).toBool();
     settings->endGroup();
 
     settings->beginGroup(GroupProxy);
     proxyType = static_cast<ProxyType>(settings->value(QStringLiteral("type"),
-                                                       ProxyType::System).toUInt());
+                                                       ProxyType::System)
+                                           .toUInt());
     proxyHost = settings->value(QStringLiteral("host")).toString();
     proxyPort = static_cast<quint16>(settings->value(QStringLiteral("port"), 0).toUInt());
     proxyAuthenticate = settings->value(QStringLiteral("authenticate"), false).toBool();
@@ -146,12 +164,14 @@ void Settings::load()
     settings->endGroup();
 
     settings->beginGroup(GroupDocsets);
-    if (settings->contains(QStringLiteral("path"))) {
+    if (settings->contains(QStringLiteral("path")))
+    {
         docsetPath = settings->value(QStringLiteral("path")).toString();
-    } else {
+    }
+    else
+    {
 #ifndef PORTABLE_BUILD
-        docsetPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation)
-                + QLatin1String("/docsets");
+        docsetPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QLatin1String("/docsets");
 #else
         docsetPath = QStringLiteral("docsets");
 #endif
@@ -160,11 +180,15 @@ void Settings::load()
 
     // Create the docset storage directory if it doesn't exist.
     const QFileInfo fi(docsetPath);
-    if (!fi.exists()) {
+    if (!fi.exists())
+    {
         // TODO: Report QDir::mkpath() errors.
-        if (fi.isRelative()) {
+        if (fi.isRelative())
+        {
             QDir().mkpath(QCoreApplication::applicationDirPath() + "/" + docsetPath);
-        } else {
+        }
+        else
+        {
             QDir().mkpath(docsetPath);
         }
     }
@@ -178,8 +202,21 @@ void Settings::load()
     settings->beginGroup(GroupInternal);
     installId = settings->value(QStringLiteral("install_id"),
                                 // Avoid curly braces (QTBUG-885)
-                                QUuid::createUuid().toString().mid(1, 36)).toString();
+                                QUuid::createUuid().toString().mid(1, 36))
+                    .toString();
     settings->endGroup();
+}
+
+QList<QPair<QString, QString>> Settings::initDashServerMirrors()
+{
+    QList<QPair<QString, QString>> mirrors;
+    mirrors.append(QPair(QString("Main"), QString("https://kapeli.com")));
+    mirrors.append(QPair(QString("San Francisco"), QString("https://sanfrancisco.kapeli.com")));
+    mirrors.append(QPair(QString("New York"), QString("https://newyork.kapeli.com")));
+    mirrors.append(QPair(QString("London"), QString("https://london.kapeli.com")));
+    mirrors.append(QPair(QString("Frankfurt"), QString("https://frankfurt.kapeli.com")));
+
+    return mirrors;
 }
 
 void Settings::save()
@@ -273,7 +310,8 @@ void Settings::migrate(QSettings *settings) const
 
     // Unset content.default_fixed_font_size.
     // The causing bug was 0.6.1 (#903), but the incorrect setting still comes to haunt us (#1054).
-    if (version == QVersionNumber(0, 6, 0)) {
+    if (version == QVersionNumber(0, 6, 0))
+    {
         settings->beginGroup(GroupContent);
         settings->remove(QStringLiteral("default_fixed_font_size"));
         settings->endGroup();
@@ -284,13 +322,15 @@ void Settings::migrate(QSettings *settings) const
     //
 
     // Rename 'browser' group into 'content'.
-    if (version < QVersionNumber(0, 4, 0)) {
+    if (version < QVersionNumber(0, 4, 0))
+    {
         settings->beginGroup(QStringLiteral("browser"));
         const QVariant tmpMinimumFontSize = settings->value(QStringLiteral("minimum_font_size"));
         settings->endGroup();
         settings->remove(QStringLiteral("browser"));
 
-        if (tmpMinimumFontSize.isValid()) {
+        if (tmpMinimumFontSize.isValid())
+        {
             settings->beginGroup(GroupContent);
             settings->setValue(QStringLiteral("minimum_font_size"), tmpMinimumFontSize);
             settings->endGroup();
@@ -302,7 +342,8 @@ void Settings::migrate(QSettings *settings) const
     //
 
     // Unset 'state/splitter_geometry', because custom styles were removed.
-    if (version < QVersionNumber(0, 3, 0)) {
+    if (version < QVersionNumber(0, 3, 0))
+    {
         settings->beginGroup(GroupState);
         settings->remove(QStringLiteral("splitter_geometry"));
         settings->endGroup();

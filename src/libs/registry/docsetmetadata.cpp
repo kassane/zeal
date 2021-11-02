@@ -43,31 +43,47 @@ DocsetMetadata::DocsetMetadata(const QJsonObject &jsonObject)
     m_rawIcon = QByteArray::fromBase64(jsonObject[QStringLiteral("icon")].toString().toLocal8Bit());
     m_icon.addPixmap(QPixmap::fromImage(QImage::fromData(m_rawIcon)));
 
-    m_rawIcon2x = QByteArray::fromBase64(jsonObject[QStringLiteral("icon2x")].toString()
-            .toLocal8Bit());
-    if (qApp->devicePixelRatio() > 1.0) {
+    m_rawIcon2x = QByteArray::fromBase64(jsonObject[QStringLiteral("icon2x")].toString().toLocal8Bit());
+    if (qApp->devicePixelRatio() > 1.0)
+    {
         QPixmap pixmap = QPixmap::fromImage(QImage::fromData(m_rawIcon2x));
         pixmap.setDevicePixelRatio(2.0);
         m_icon.addPixmap(pixmap);
     }
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("aliases")].toArray()) {
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("aliases")].toArray())
+    {
         m_aliases << vv.toString();
     }
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("versions")].toArray()) {
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("versions")].toArray())
+    {
         m_versions << vv.toString();
+    }
+
+    if (jsonObject.contains("version"))
+    {
+        m_versions << jsonObject["version"].toString();
     }
 
     m_revision = jsonObject[QStringLiteral("revision")].toString();
 
     m_feedUrl = QUrl(jsonObject[QStringLiteral("feed_url")].toString());
 
-    for (const QJsonValueRef vv : jsonObject[QStringLiteral("urls")].toArray()) {
+    for (const QJsonValueRef vv : jsonObject[QStringLiteral("urls")].toArray())
+    {
         m_urls.append(QUrl(vv.toString()));
     }
 
     m_extra = jsonObject[QStringLiteral("extra")].toObject();
+
+    m_archive = jsonObject[QStringLiteral("archive")].toString();
+
+    for (const QJsonValueRef vv : jsonObject["specific_versions"].toArray())
+    {
+        QJsonObject v = vv.toObject();
+        m_specificVersions.insert(v["version"].toString(), v["archive"].toString());
+    }
 }
 
 /*!
@@ -93,9 +109,11 @@ void DocsetMetadata::save(const QString &path, const QString &version)
     if (!m_feedUrl.isEmpty())
         jsonObject[QStringLiteral("feed_url")] = m_feedUrl.toString();
 
-    if (!m_urls.isEmpty()) {
+    if (!m_urls.isEmpty())
+    {
         QJsonArray urls;
-        for (const QUrl &url : qAsConst(m_urls)) {
+        for (const QUrl &url : qAsConst(m_urls))
+        {
             urls.append(url.toString());
         }
 
@@ -123,6 +141,16 @@ void DocsetMetadata::save(const QString &path, const QString &version)
     if (file->open(QIODevice::WriteOnly))
         file->write(m_rawIcon2x);
     file->close();
+}
+
+QString DocsetMetadata::archive() const
+{
+    return m_archive;
+}
+
+QMap<QString, QString> DocsetMetadata::specificVersions() const
+{
+    return m_specificVersions;
 }
 
 QString DocsetMetadata::name() const
@@ -186,7 +214,8 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
     metadata.m_name = feedUrl.fileName();
 
     // Strip ".xml" extension if any.
-    if (metadata.m_name.endsWith(QLatin1String(".xml"))) {
+    if (metadata.m_name.endsWith(QLatin1String(".xml")))
+    {
         metadata.m_name.chop(4);
     }
 
@@ -197,17 +226,21 @@ DocsetMetadata DocsetMetadata::fromDashFeed(const QUrl &feedUrl, const QByteArra
 
     QXmlStreamReader xml(data);
 
-    while (!xml.atEnd()) {
+    while (!xml.atEnd())
+    {
         const QXmlStreamReader::TokenType token = xml.readNext();
         if (token != QXmlStreamReader::StartElement)
             continue;
 
         // Try to pull out the relevant data
-        if (xml.name() == QLatin1String("version")) {
+        if (xml.name() == QLatin1String("version"))
+        {
             if (xml.readNext() != QXmlStreamReader::Characters)
                 continue;
             metadata.m_versions << xml.text().toString();
-        } else if (xml.name() == QLatin1String("url")) {
+        }
+        else if (xml.name() == QLatin1String("url"))
+        {
             if (xml.readNext() != QXmlStreamReader::Characters)
                 continue;
             metadata.m_urls.append(QUrl(xml.text().toString()));

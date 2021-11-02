@@ -53,11 +53,6 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    for (int i = 0; i < Core::Settings::dashMirrorList.size(); ++i) {
-        QPair<QString, QString> pair = Core::Settings::dashMirrorList.at(i);
-        ui->dashServerMirrorsCombo->addItem(pair.first, pair.second);
-    }
-
     // Setup signals & slots
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::saveSettings);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::loadSettings);
@@ -186,8 +181,6 @@ void SettingsDialog::loadSettings()
 
     ui->docsetStorageEdit->setText(QDir::toNativeSeparators(settings->docsetPath));
 
-    ui->dashServerMirrorsCombo->setCurrentIndex(settings->dashMirrorIndex);
-
     // Tabs Tab
     ui->openNewTabAfterActive->setChecked(settings->openNewTabAfterActive);
 
@@ -267,8 +260,6 @@ void SettingsDialog::saveSettings()
     settings->showShortcut = ui->toolButton->keySequence();
 
     settings->docsetPath = QDir::fromNativeSeparators(ui->docsetStorageEdit->text());
-
-    settings->dashMirrorIndex = ui->dashServerMirrorsCombo->currentIndex();
 
     // Tabs Tab
     settings->openNewTabAfterActive = ui->openNewTabAfterActive->isChecked();
