@@ -47,8 +47,6 @@ constexpr char GroupProxy[] = "proxy";
 
 using namespace Zeal::Core;
 
-QList<QPair<QString, QString>> const Settings::dashMirrorList = Settings::initDashServerMirrors();
-
 Settings::Settings(QObject *parent)
     : QObject(parent)
 {
@@ -60,11 +58,6 @@ Settings::Settings(QObject *parent)
 Settings::~Settings()
 {
     save();
-}
-
-QString Settings::dashMirrorUrl() const
-{
-    return dashMirrorList.at(dashMirrorIndex).second;
 }
 
 void Settings::load()
@@ -79,8 +72,6 @@ void Settings::load()
     showSystrayIcon = settings->value(QStringLiteral("show_systray_icon"), true).toBool();
     minimizeToSystray = settings->value(QStringLiteral("minimize_to_systray"), false).toBool();
     hideOnClose = settings->value(QStringLiteral("hide_on_close"), false).toBool();
-
-    dashMirrorIndex = settings->value(QStringLiteral("dash_server_mirror"), 0).toInt();
 
     settings->beginGroup(GroupGlobalShortcuts);
     showShortcut = settings->value(QStringLiteral("show")).value<QKeySequence>();
@@ -202,8 +193,6 @@ void Settings::save()
     settings->setValue(QStringLiteral("show_systray_icon"), showSystrayIcon);
     settings->setValue(QStringLiteral("minimize_to_systray"), minimizeToSystray);
     settings->setValue(QStringLiteral("hide_on_close"), hideOnClose);
-
-    settings->setValue(QStringLiteral("dash_server_mirror"), dashMirrorIndex);
 
     settings->beginGroup(GroupGlobalShortcuts);
     settings->setValue(QStringLiteral("show"), showShortcut);
@@ -337,18 +326,6 @@ QSettings *Settings::qsettings(QObject *parent)
     return new QSettings(QCoreApplication::applicationDirPath() + QLatin1String("/zeal.ini"),
                          QSettings::IniFormat, parent);
 #endif
-}
-
-QList<QPair<QString, QString>> Settings::initDashServerMirrors()
-{
-    QList<QPair<QString, QString>> mirrors;
-    mirrors.append(QPair(QString("Main"), QString("https://kapeli.com")));
-    mirrors.append(QPair(QString("San Francisco"), QString("https://sanfrancisco.kapeli.com")));
-    mirrors.append(QPair(QString("New York"), QString("https://newyork.kapeli.com")));
-    mirrors.append(QPair(QString("London"), QString("https://london.kapeli.com")));
-    mirrors.append(QPair(QString("Frankfurt"), QString("https://frankfurt.kapeli.com")));
-
-    return mirrors;
 }
 
 QDataStream &operator<<(QDataStream &out, Settings::ExternalLinkPolicy policy)

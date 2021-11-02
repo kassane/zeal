@@ -28,7 +28,6 @@
 #include <QJsonObject>
 #include <QStringList>
 #include <QUrl>
-#include <QMap>
 
 namespace Zeal {
 namespace Registry {
@@ -53,9 +52,6 @@ public:
     QUrl url() const;
     QList<QUrl> urls() const;
 
-    QString archive() const;
-    QMap<QString, QString> specificVersions() const;
-
     static DocsetMetadata fromDashFeed(const QUrl &feedUrl, const QByteArray &data);
 
 private:
@@ -73,9 +69,6 @@ private:
 
     QUrl m_feedUrl;
     QList<QUrl> m_urls;
-
-    QString m_archive;
-    QMap<QString, QString> m_specificVersions;
 };
 
 } // namespace Registry
